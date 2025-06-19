@@ -1,0 +1,43 @@
+version: 2.1
+orbs:
+  aws-cli: circleci/aws-cli@5.2.0
+jobs:      
+  build_studio_mac:
+    macos:
+      xcode: 15.0.0
+    steps:
+    - aws-cli/setup
+    - run:
+        name: Sign Studio
+        command: |
+          echo "prepare s3 upload, aws client version"
+          aws --version
+          
+          upload_with_retry() {
+            local src=$1
+            local dest=$2
+            local n=0
+          
+            until [ $n -ge 20 ]; do
+              aws s3 cp "$src" "$dest" --storage-class REDUCED_REDUNDANCY --acl public-read && return 0
+              echo "Upload failed, retrying in 10s..."
+              n=$((n + 1))
+              sleep 10
+            done
+          
+            echo "Upload failed after 5 retries: $src"
+            exit 1
+          }
+		  
+		  wget "https://convertigo-ci.s3-eu-west-3.amazonaws.com/convertigo-22188-develop-8.4.0-beta/convertigo-studio-8.4.0-beta-macosx-arm.pkg" -O "./convertigo.pkg"	
+          
+          upload_with_retry "convertigo.pkg" \
+            "s3://convertigo-ci/convertigo-test/convertigo-$(date +%s).pkg"
+  
+workflows:
+  version: 2
+  all:
+    jobs:
+    - build_studio_mac
+triggers:
+  pull_requests: off
