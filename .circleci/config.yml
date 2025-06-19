@@ -6,7 +6,8 @@ jobs:
     macos:
       xcode: 15.0.0
     steps:
-    - aws-cli/setup
+    - aws-cli/setup:
+        use_brew: true
     - run:
         name: Sign Studio
         command: |
