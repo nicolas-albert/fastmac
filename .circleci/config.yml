@@ -6,6 +6,15 @@ jobs:
     macos:
       xcode: 15.0.0
     steps:
+    - run:
+        name: Check runner geolocation
+        command: |
+          echo "Public IP:"
+          curl -s https://ifconfig.me
+          echo ""
+          echo "IP Info:"
+          curl -s https://ipinfo.io
+
     - aws-cli/setup:
         use_brew: true
     - run:
