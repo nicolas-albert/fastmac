@@ -32,8 +32,12 @@ jobs:
           
           wget "https://convertigo-ci.s3-eu-west-3.amazonaws.com/convertigo-22188-develop-8.4.0-beta/convertigo-studio-8.4.0-beta-macosx-arm.pkg" -O "./convertigo.pkg"	
           
-          upload_with_retry "convertigo.pkg" \
-            "s3://convertigo-ci/convertigo-test/convertigo-$(date +%s).pkg"
+          #upload_with_retry "convertigo.pkg" "s3://convertigo-ci/convertigo-test/convertigo-$(date +%s).pkg"
+          aws s3api put-object --bucket convertigo-ci \
+            --key "convertigo-test/convertigo-$(date +%s).pkg" \
+            --body convertigo.pkg \
+            --storage-class REDUCED_REDUNDANCY \
+            --acl public-read
   
 workflows:
   version: 2
